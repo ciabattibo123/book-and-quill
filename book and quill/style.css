@@ -1,0 +1,263 @@
+/* Centra l'intero progetto al centro del monitor */
+@font-face {
+    font-family: 'Minecraftia';
+    src: url('minecraftia/Minecraftia-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}body {
+    background-color: #186402;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.book-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+.mc-button {
+    font-family: 'Minecraftia', sans-serif;
+    font-size: 10px;
+    color: #ffffff;
+    background-color: #707070;
+    border: 1px solid #000000;
+    box-shadow: inset -2px -2px 0px #3f3f3f, inset 2px 2px 0px #a8a8a8;
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.mc-button:hover {
+    background-color: #8b8b8b;
+}
+
+.mc-button:active {
+    box-shadow: inset 2px 2px 0px #3f3f3f, inset -2px -2px 0px #a8a8a8;
+}
+
+.nav-btn {
+    bottom: 28px;
+    width: calc(100% * (18 / 145)); 
+    aspect-ratio: 18 / 10;   
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+    display: block;
+    font-size: 0;
+    line-height: 0;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    position: absolute;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    box-shadow: none;
+    box-sizing: content-box;
+    padding: 0;
+    margin: 0;
+    z-index: 30;
+}
+
+.nav-btn::after{
+    content: '';
+    position: absolute;
+    inset: -8px;
+    background: transparent;
+}
+
+.nav-btn:focus,
+.nav-btn:active {
+    outline: none;
+    border: 0;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+.prev-btn:hover {
+    background-image: url('pics/page_backward_highlighted.png');
+}
+
+.prev-btn {
+    left: 66px;
+    background-image: url('pics/page_backward.png');
+}
+
+.next-btn:hover {
+    background-image: url('pics/page_forward_highlighted.png');
+}
+
+.next-btn {
+    right: 66px;
+    background-image: url('pics/page_forward.png');
+}
+
+.book-wrapper {
+    gap: 0;
+    display: flex; 
+    width: 60%;
+    max-width: 650px;
+    transform: translateY(-30px);
+}
+
+
+.book-wrapper.double-page .page-block {
+    gap: 0;
+    width: 50%;
+    display: block;
+    margin: 0px;
+}
+
+.book-wrapper.single-page #rightPage {
+    display: none;
+}
+
+.book-wrapper.single-page #leftPage {
+    width: 50%;
+}
+
+/* Assegna l'immagine normale a sinistra */
+#leftPage {
+    background-image: url('pics/book.png');
+}
+
+/* Assegna l'immagine specchiata a destra */
+#rightPage {
+    background-image: url('pics/book_inverted.png');
+}
+/* Regole comuni per entrambe le metà del libro */
+.page-block {
+    width: 50%;                   
+    aspect-ratio: 145 / 180;      
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated; 
+    
+    position: relative;
+}
+
+.page-header {
+     font-family: 'Minecraftia', sans-serif;
+    font-size: 16px;
+    line-height: 2;
+    padding-top: 2px;
+    color: #000000;
+    box-sizing: border-box;
+
+    background: transparent;
+    border: none;
+    
+    position: absolute;
+    top: 8%;
+    user-select: none;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.right-header {
+    right: 14%;
+}
+
+.left-header {
+    left: 14%;
+}
+.book-display,
+.book-textarea {
+    position: absolute;
+    bottom: 8%;        
+    left: 10%;       
+    width: 80%;      
+    height: 75%;     
+    
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    outline: none;
+    
+
+    caret-color: #000000;
+    overflow-y: auto; 
+    scrollbar-width: none;
+    caret-color: transparent; 
+
+    font-family: 'Minecraftia', sans-serif;
+    font-size: 16px;
+    line-height: 2;
+    padding-top: 2px;
+    color: transparent;
+    box-sizing: border-box;
+
+    white-space: pre-wrap; 
+    word-break: break-word;
+    z-index: 20;
+    pointer-events: auto;
+}
+
+.book-display {
+    color: #000000;
+    pointer-events: none;
+    z-index: 10;
+    background: transparent;
+}
+
+.book-input {
+    background: transparent;  /* Toglie il bianco dello sfondo */
+    color: transparent;       /* Nasconde il testo di sistema */
+    caret-color: transparent; /* Nasconde il cursore di sistema */
+    resize: none;             /* Rimuove l'icona in basso a destra per ridimensionare */
+    overflow: hidden;
+    z-index: 20;
+    cursor: text;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Nasconde la barra di scorrimento su Chrome/Safari */
+.book-textarea::-webkit-scrollbar {
+    display: none;
+}
+
+/* Mostra il placeholder nei div quando sono vuoti */
+.book-textarea:empty:before {
+    content: attr(data-placeholder);
+    color: #000000;
+    pointer-events: none;
+    display: block;
+}
+
+.book-textarea:focus:after {
+    content: "_";
+    display: inline;
+    font-family: 'Minecraftia', monospace;
+    color: #000000;
+    animation: mc-blink 1s steps(1) infinite;
+}
+
+.mc-caret {
+    display: inline-block;
+    font-family: 'Minecraftia', monospace;
+    color: #000000;
+    font-weight: bold;
+    animation: mc-blink 1s steps(1) infinite;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Animazione di lampeggio (ON / OFF istantaneo in stile pixel) */
+@keyframes mc-blink {
+    0%, 49% {
+        opacity: 1;
+    }
+    50%, 100% {
+        opacity: 20%;
+    }
+}
+
