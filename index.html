@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book and quill</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="book-controls">
+        <button id="toggleViewBtn" class="mc-button">Double page</button>
+    </div>
+
+    <div class="book-wrapper double-page">
+        
+        <div id="leftPage" class="page-block">
+            <div class="page-header left-header" id="leftHeader"></div>
+            <div class="book-display" id="leftDisplay"></div>
+
+            <textarea id="leftInput" class="book-textarea" spellcheck="false"></textarea>
+
+            <button id="prevBtn" class="nav-btn prev-btn"></button>
+        </div>
+        
+        <div id="rightPage" class="page-block">
+            <div class="page-header right-header" id="rightHeader" ></div>
+            <div class="book-display" id="rightDisplay"></div>
+        
+            <textarea id="rightInput" class="book-textarea" spellcheck="false"></textarea>
+
+         <button id="nextBtn" class="nav-btn next-btn"></button>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
+<script>
+    // --- 1. STATO DELL'APPLICAZIONE ---
+    let pages = [""];          // Array di stringhe (ogni elemento = una pagina)
+    let currentPageIndex = 0;  // Indice della pagina mostrata a sinistra
+
+    // --- 2. ELEMENTI DOM ---
+    const leftInput = document.getElementById('leftInput');
+    const leftDisplay = document.getElementById('leftDisplay');
+    const leftHeader = document.getElementById('leftHeader');
+
+    const rightInput = document.getElementById('rightInput');
+    const rightDisplay = document.getElementById('rightDisplay');
+    const rightHeader = document.getElementById('rightHeader');
+    const rightPage = document.getElementById('rightPage'); // Assicurati che questo ID o elemento esista!
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const toggleViewBtn = document.getElementById('toggleViewBtn'); 
+    const bookWrapper = document.querySelector('.book-wrapper');
+
+    // --- 3. LOGICA DI INPUT E CURSORE MINECRAFT ---
+    function handlePageInput(input, display) {
+        if (!input || !display) return;
+
+        // 1. Blocco overflow
+        while (input.scrollHeight > input.clientHeight && input.value.length > 0) {
+            input.value = input.value.slice(0, -1);
+        }
+
+        // 2. Posizione del cursore
+        const cursorPos = input.selectionStart;
+        const text = input.value;
+
+        // 3. Render nel Display visibile
+        if (document.activeElement === input) {
+            if (cursorPos === text.length) {
+                display.innerText = text + "_";
+            } else {
+                const textBefore = text.slice(0, cursorPos);
+                const textAfter = text.slice(cursorPos);
+                display.innerText = textBefore + "|" + textAfter;
+            }
+        } else {
+            display.innerText = text;
+        }
+    }
+
+    // --- 4. RENDER (Sincronizza Stato -> DOM) ---
+    function render() {
+        const isDouble = bookWrapper.classList.contains('double-page');
+
+        // -- PAGINA SINISTRA --
+        leftInput.value = pages[currentPageIndex] || "";
+        handlePageInput(leftInput, leftDisplay); // 🟢 CORRETTO: Chiamata a handlePageInput invece di syncDisplay
+        leftHeader.innerText = `Page ${currentPageIndex + 1} of ${pages.length}`;
+
+        // -- PAGINA DESTRA --
+        if (isDouble) {
+            if (rightPage) rightPage.style.display = 'block';
+
+            if (currentPageIndex + 1 >= pages.length) {
+                pages.push("");
+            }
+
+            rightInput.value = pages[currentPageIndex + 1] || ""; // 🟢 CORRETTO: Sostituito rightTextarea con rightInput
+            handlePageInput(rightInput, rightDisplay);
+            rightHeader.innerText = `Page ${currentPageIndex + 2} of ${pages.length}`;
+        } else {
+            if (rightPage) rightPage.style.display = 'none';
+        }
+
+        // -- FRECCE DI NAVIGAZIONE --
+        if (currentPageIndex === 0) {
+            prevBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+        }
+    }
+
+    // --- 5. EVENTI DI SCRITTURA ---
+    [
+        { input: leftInput, display: leftDisplay },
+        { input: rightInput, display: rightDisplay }
+    ].forEach(page => {
+        if (!page.input || !page.display) return;
+
+        ['input', 'keyup', 'click', 'select'].forEach(eventType => {
+            page.input.addEventListener(eventType, () => {
+                // Salva il testo digitato nell'array pages
+                const index = page.input === leftInput ? currentPageIndex : currentPageIndex + 1;
+                pages[index] = page.input.value;
+                
+                handlePageInput(page.input, page.display);
+                render(); // Aggiorna gli header (es. "Page 1 of X") in tempo reale
+            });
+        });
+
+        page.input.addEventListener('blur', () => {
+            page.display.innerText = page.input.value;
+        });
+    });
+
+    // --- 6. TOGGLE VISTA (SINGLE / DOUBLE) ---
+    toggleViewBtn.addEventListener('click', () => {
+        const isDouble = bookWrapper.classList.contains('double-page');
+
+        if (isDouble) {
+            bookWrapper.classList.remove('double-page');
+            bookWrapper.classList.add('single-page');
+            toggleViewBtn.innerText = "Vista: Singola";
+        } else {
+            bookWrapper.classList.remove('single-page');
+            bookWrapper.classList.add('double-page');
+            toggleViewBtn.innerText = "Vista: Doppia";
+
+            if (currentPageIndex % 2 !== 0) {
+                currentPageIndex--;
+            }
+        }
+
+        render();
+    });
+
+    // --- 7. NAVIGAZIONE ---
+    prevBtn.addEventListener('click', () => {
+        const isDouble = bookWrapper.classList.contains('double-page');
+        const step = isDouble ? 2 : 1;
+
+        if (currentPageIndex - step >= 0) {
+            currentPageIndex -= step;
+            render();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        const isDouble = bookWrapper.classList.contains('double-page');
+        const step = isDouble ? 2 : 1;
+
+        if (currentPageIndex + step >= pages.length) {
+            pages.push("");
+            if (isDouble) pages.push("");
+        }
+
+        currentPageIndex += step;
+        render();
+    });
+
+    // Inizializzazione all'avvio
+    render();
+</script>
